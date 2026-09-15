@@ -1,0 +1,1194 @@
+/* ==========================================================================
+   1. CONFIGURAÇÕES GERAIS E VARIÁVEIS DE COR
+   ========================================================================== */
+:root {
+    --bg-main: #3a2a1c;          /* Fundo escuro amadeirado */
+    --bg-card: #ede8d0;          /* Tom creme claro dos cards e headers */
+    --text-primary: #3a2a1c;     /* Texto principal escuro */
+    --text-price: #b33923;       /* Cor de destaque da promoção / preço */
+    --text-old-price: #8c7b6c;   /* Tom cinza/marrom apagado para preço antigo */
+    --text-muted: #777777;       /* Texto secundário/suave */
+    --btn-cart-bg: #d1c7a5;      /* Botão secundário (Carrinho) */
+    --btn-cart-hover: #beba96;   
+    --btn-buy-bg: #3a2a1c;       /* Botão primário (Comprar) */
+    --btn-buy-hover: #271c12;    
+    --btn-success: #28a745;      /* Botão de confirmação de pagamento */
+    --btn-success-hover: #218838;
+    --border-color: #c4bca3;     /* Bordas sutis */
+    --overlay-bg: rgba(0, 0, 0, 0.6);
+    --radius-sm: 6px;
+    --radius-card: 12px;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   2. CABEÇALHO (HEADER) E NAVEGAÇÃO
+   ========================================================================== */
+.link-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: var(--bg-card);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.left-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.left-header img,
+.link-head img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
+.menu-toggle-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.menu-toggle-btn:hover {
+    background-color: var(--btn-cart-hover);
+    color: #8c5a2b;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-menu a {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.3s ease;
+}
+
+.user-menu a:hover {
+    color: #8c5a2b; /* Destaque elegante em tom marrom quente */
+}
+
+/* Botão do Carrinho na Navbar */
+.cart-icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.cart-icon-btn:hover {
+    background-color: var(--btn-cart-hover);
+}
+
+/* Badge com a quantidade de itens */
+.cart-count {
+    background-color: var(--text-price);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+/* Animação do Contador de Itens */
+.cart-count.pulse {
+    animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+/* ==========================================================================
+   3. CONTAINER PRINCIPAL E GRID DE PRODUTOS
+   ========================================================================== */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+    gap: 30px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* ==========================================================================
+   4. CARD DO PRODUTO
+   ========================================================================== */
+.product-card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.product-image {
+    width: 100%;
+    height: 250px;
+    background-color: #f0ebe0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.product-info {
+    padding: 20px;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-grow: 1;
+}
+
+.product-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1.3;
+}
+
+.product-prices {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.old-price {
+    font-size: 0.95rem;
+    color: var(--text-old-price);
+    text-decoration: line-through;
+}
+
+.product-price {
+    font-size: 1.4rem;
+    color: var(--text-price);
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   5. SELEÇÃO DE CORES
+   ========================================================================== */
+.color-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.color-selection span, 
+.quantity-selection span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.color-options {
+    display: flex;
+    gap: 10px;
+}
+
+.color-options input[type="radio"] {
+    display: none;
+}
+
+.color-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    display: inline-block;
+    transition: all 0.2s ease;
+}
+
+.color-btn.black { background-color: #1a1a1a; }
+.color-btn.white { background-color: #ffffff; border-color: #ccc; }
+.color-btn.red   { background-color: #e74c3c; }
+.color-btn.blue  { background-color: #2f5fed; }
+.color-btn.gold  { background-color: #d4af37; border-color: #b8952c; }
+
+.color-options input[type="radio"]:checked + .color-btn {
+    transform: scale(1.2);
+    border-color: var(--bg-main);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   6. CONTROLE DE QUANTIDADE NO CARD (+ / -)
+   ========================================================================== */
+.quantity-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    width: fit-content;
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+.qty-btn {
+    background-color: var(--btn-cart-bg);
+    border: none;
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.qty-btn:hover {
+    background-color: var(--btn-cart-hover);
+}
+
+.qty-input {
+    width: 44px;
+    height: 32px;
+    border: none;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    background-color: #ffffff;
+    -moz-appearance: textfield;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* ==========================================================================
+   7. BOTÕES DE AÇÃO DOS CARDS
+   ========================================================================== */
+.product-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.btn-cart, .btn-buy {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-cart {
+    background-color: var(--btn-cart-bg);
+    color: var(--text-primary);
+}
+
+.btn-cart:hover {
+    background-color: var(--btn-cart-hover);
+}
+
+.btn-buy {
+    background-color: var(--btn-buy-bg);
+    color: var(--bg-card);
+}
+
+.btn-buy:hover {
+    background-color: var(--btn-buy-hover);
+}
+
+.btn-cart:active, .btn-buy:active {
+    transform: scale(0.97);
+}
+
+/* ==========================================================================
+   8. ESTRUTURA BASE DAS JANELAS MODAIS E OVERLAYS
+   ========================================================================== */
+.categories-modal-overlay,
+.cart-modal-overlay,
+.profile-modal-overlay,
+.checkout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-bg);
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.categories-modal-overlay.active,
+.cart-modal-overlay.active,
+.profile-modal-overlay.active,
+.checkout-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    display: flex;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+    color: var(--text-price);
+}
+
+/* ==========================================================================
+   9. MENU LATERAL DE CATEGORIAS (DRAWER ESQUERDO)
+   ========================================================================== */
+.categories-modal-overlay {
+    justify-content: flex-start;
+}
+
+.categories-drawer {
+    background-color: var(--bg-card);
+    width: 100%;
+    max-width: 300px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.categories-modal-overlay.active .categories-drawer {
+    transform: translateX(0);
+}
+
+.categories-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-primary);
+}
+
+.categories-header h2 {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.categories-list {
+    list-style: none;
+    padding: 15px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.categories-list li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.categories-list li a:hover {
+    background-color: var(--btn-cart-bg);
+    color: #8c5a2b;
+}
+
+.categories-list li a i {
+    width: 20px;
+    text-align: center;
+    color: var(--text-price);
+}
+
+/* ==========================================================================
+   10. MODAL DO CARRINHO (DRAWER DIREITO)
+   ========================================================================== */
+.cart-modal-overlay {
+    justify-content: flex-end;
+}
+
+.cart-modal {
+    background-color: var(--bg-card);
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.cart-modal-overlay.active .cart-modal {
+    transform: translateX(0);
+}
+
+.cart-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-primary);
+}
+
+.cart-header h2 {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.empty-cart-msg {
+    text-align: center;
+    color: var(--text-old-price);
+    margin-top: 40px;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.cart-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.cart-item-info {
+    flex: 1;
+}
+
+.cart-item-info h4 {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.cart-item-detail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.cart-item-quantity {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background-color: #ffffff;
+    width: fit-content;
+    margin-top: 6px;
+}
+
+.cart-qty-btn {
+    background-color: var(--btn-cart-bg);
+    border: none;
+    width: 24px;
+    height: 24px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.cart-qty-btn:hover {
+    background-color: var(--btn-cart-hover);
+}
+
+.cart-qty-value {
+    width: 28px;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.cart-item-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.cart-item-price {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--text-price);
+}
+
+.remove-item-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+
+.remove-item-btn:hover {
+    color: #c0392b;
+}
+
+.cart-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.cart-total strong {
+    color: var(--text-price);
+    font-size: 1.3rem;
+}
+
+.btn-checkout {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--btn-buy-bg);
+    color: var(--bg-card);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-checkout:hover {
+    background-color: var(--btn-buy-hover);
+}
+
+/* ==========================================================================
+   11. MODAL DE PERFIL (LOGIN E CADASTRO)
+   ========================================================================== */
+.profile-modal-overlay {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.profile-modal {
+    background-color: var(--bg-card);
+    width: 100%;
+    max-width: 420px;
+    border-radius: var(--radius-card);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.profile-modal-overlay.active .profile-modal {
+    transform: translateY(0);
+}
+
+.profile-header {
+    padding: 20px 20px 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.profile-tabs {
+    display: flex;
+    gap: 15px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-old-price);
+    cursor: pointer;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--text-price);
+}
+
+.auth-form {
+    display: none;
+    padding: 25px 20px;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.auth-form.active {
+    display: flex;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.input-group input,
+.input-group select {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background-color: #ffffff;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: var(--bg-main);
+}
+
+.btn-auth {
+    background-color: var(--btn-buy-bg);
+    color: var(--bg-card);
+    border: none;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-auth:hover {
+    background-color: var(--btn-buy-hover);
+}
+
+/* ==========================================================================
+   12. MODAL DE CHECKOUT E PAGAMENTO (PIX / CARTÃO)
+   ========================================================================== */
+.checkout-modal-overlay {
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.checkout-modal {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-card);
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.checkout-modal-overlay.active .checkout-modal {
+    transform: scale(1);
+}
+
+.checkout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.checkout-summary {
+    background-color: #ffffff;
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.payment-methods {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.method-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    background-color: #ffffff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--text-primary);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.method-btn.active {
+    border-color: var(--text-price);
+    color: var(--text-price);
+    background-color: #fdf5f3;
+}
+
+.payment-form {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.payment-form.active {
+    display: flex;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.form-row .input-group {
+    flex: 1;
+}
+
+.btn-pay {
+    background-color: var(--btn-success);
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.btn-pay:hover {
+    background-color: var(--btn-success-hover);
+}
+
+/* Área de Resultado do PIX */
+.pix-result-area {
+    text-align: center;
+}
+
+.qr-placeholder {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.qr-placeholder img {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    background-color: #ffffff;
+    max-width: 180px;
+}
+
+.pix-copy-box {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.pix-copy-box input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    background-color: #ffffff;
+}
+
+.pix-copy-box button {
+    background-color: var(--btn-buy-bg);
+    color: var(--bg-card);
+    border: none;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.pix-copy-box button:hover {
+    background-color: var(--btn-buy-hover);
+}
+
+.pix-instructions {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   13. ADAPTAÇÕES RESPONSIVAS (DISPOSITIVOS MÓVEIS)
+   ========================================================================== */
+/* ==========================================================================
+   14. MODO ADMINISTRADOR
+   ========================================================================== */
+
+/* Selo "Modo Admin" no cabeçalho */
+.admin-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--text-price);
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
+/* Dica de credenciais de demonstração no login */
+.admin-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 6px;
+}
+
+/* Botão de excluir sobre a imagem do produto — só aparece no modo admin */
+.product-image {
+    position: relative;
+}
+
+.btn-delete-product {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 5;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(211, 47, 47, 0.9);
+    color: #ffffff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-delete-product:hover {
+    background-color: #b71c1c;
+}
+
+.btn-delete-product:active {
+    transform: scale(0.93);
+}
+
+body.admin-mode .btn-delete-product {
+    display: flex;
+}
+
+/* Botão flutuante de adicionar produto — só aparece no modo admin */
+.admin-fab {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--btn-buy-bg);
+    color: var(--bg-card);
+    font-size: 1.4rem;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    z-index: 500;
+}
+
+.admin-fab:hover {
+    background-color: var(--btn-buy-hover);
+    transform: scale(1.05);
+}
+
+body.admin-mode .admin-fab {
+    display: flex;
+}
+
+/* Modal de "Adicionar Produto" */
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.admin-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.admin-modal {
+    background-color: var(--bg-card);
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: var(--radius-card);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    padding: 24px;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.admin-modal-overlay.active .admin-modal {
+    transform: scale(1);
+}
+
+.admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.admin-modal-header h2 {
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-color-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+}
+
+.admin-color-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.admin-color-row:last-child {
+    border-bottom: none;
+}
+
+.admin-color-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.admin-color-check .color-btn {
+    pointer-events: none;
+}
+
+.admin-color-file {
+    font-size: 0.8rem;
+}
+
+@media (max-width: 600px) {
+    .link-head {
+        padding: 12px 15px;
+    }
+
+    .user-menu {
+        gap: 10px;
+    }
+
+    .user-menu a span {
+        display: none; /* Esconde textos descritivos do menu para caber ícones no mobile */
+    }
+
+    .cart-modal {
+        max-width: 100%;
+    }
+
+    .categories-drawer {
+        max-width: 85%;
+    }
+
+    .profile-modal,
+    .checkout-modal {
+        padding: 18px;
+        max-width: 95%;
+    }
+
+    .product-actions {
+        flex-direction: column;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+}
