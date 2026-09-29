@@ -2,6 +2,7 @@ package dogs.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,26 @@ public class DgPrtService {
 	
 	public List<Produto> listarPorCategoria(Integer categoria) {
 	    return dogPrtRepository.findByCategoria(categoria);
+	}
+	
+	public boolean ativar(Long id) {
+		Optional<Produto> produto = dogPrtRepository.findById(id);
+		produto.ifPresent(p -> {
+			p.setAtivo(true);
+			dogPrtRepository.save(p);
+		});
+		return produto.isPresent();
+		
+	}
+
+	public boolean desativar(Long id) {
+		Optional<Produto> produto = dogPrtRepository.findById(id);
+		produto.ifPresent(p -> {
+			p.setAtivo(false);
+			dogPrtRepository.save(p);
+		});
+		return produto.isPresent();
+		
 	}
 	
 }

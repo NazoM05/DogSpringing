@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DogPrinting</title>
-    <link rel="icon" href="icon.png" type="image/x-icon">
-    <link rel="stylesheet" href="stilo.css">
+    <!-- Arquivos estáticos ficam em src/main/resources/static/ -->
+    <link rel="icon" th:href="@{/icon.png}" type="image/x-icon">
+    <!-- O parâmetro v=2 força o navegador a baixar o CSS novo. Troque o número a cada alteração. -->
+    <link rel="stylesheet" th:href="@{/stilo.css(v=2)}">
     <!-- Importando os ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
@@ -18,18 +20,23 @@
             <button class="menu-toggle-btn" id="openCategoriesBtn">
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <img src="logo.png" alt="Logo DogPrinting">
+            <img th:src="@{/logo.png}" alt="Logo DogPrinting">
         </div>
-        
+
         <div class="user-menu">
             <!-- Selo exibido apenas quando logado como administrador -->
-            <span class="admin-badge" id="adminBadge" style="display:none;">
+            <span class="admin-badge" id="adminBadge" style="display:none">
                 <i class="fa-solid fa-user-shield"></i> Modo Admin
             </span>
 
+            <!-- Botão de Prévia do Usuário (visível somente com body.admin-mode, via CSS) -->
+            <button class="btn-preview-toggle" id="previewToggleBtn" style="display:none" onclick="toggleUserPreview()">
+                <i class="fa-solid fa-eye"></i> <span id="previewBtnLabel">Prévia do Usuário</span>
+            </button>
+
             <!-- Botão de Perfil (vira "Sair" quando logado como admin) -->
             <a href="#" id="openProfileBtn"><i class="fa-solid fa-user"></i> <span id="profileBtnLabel">Perfil</span></a>
-            
+
             <!-- Botão do Carrinho na Navbar com Contador -->
             <button class="cart-icon-btn" id="openCartBtn">
                 <i class="fa-solid fa-cart-shopping"></i> Carrinho
@@ -38,862 +45,769 @@
         </div>
     </header>
 
-<main>
-<div class="products-grid" id="productsGrid">
+    <main>
+    <div class="products-grid" id="productsGrid">
 
-    <!-- PRODUTO 1 -->
-    <div class="product-card" th:attr="data-id=|p${produto.id}|" data-category="magic" th:each="produto: ${listaProdutos}">
-        <div class="product-image">
-            <button class="btn-delete-product" onclick="deleteProduct(this)" title="Excluir produto">
-                <i class="fa-solid fa-trash-can"></i>
-            </button>
-            <img th:src="|${produto.linkImage}Preta.png|" alt="Case Commander +100"> <!-- src="CasePreta.png" -->
-        </div>
-        <div class="product-info">
-            <h2 class="product-name" th:text="${produto.nome}">Case Commander +100</h2>
-            
-            <div class="product-prices">
-                <span class="product-price"  th:text="|R$ ${#numbers.formatDecimal(produto.valor, 1, 'POINT', 2, 'COMMA')}|">R$ 89,90</span>
+        <!-- PRODUTOS (um card por item de listaProdutos) -->
+        <div class="product-card"
+             th:each="produto : ${listaProdutos}"
+             th:attr="data-id=|p${produto.id}|, data-category=${produto.categoria}, data-ativo=${produto.ativo}">
+            <div class="product-image">
+                <!-- BOTÃO DE OCULTAR / EXIBIR (visível somente com body.admin-mode, via CSS) -->
+                <button class="btn-hide-product" style="display:none" onclick="toggleHideProduct(this)" title="Ocultar produto">
+                    <i class="fa-solid fa-eye-slash"></i>
+                </button>
+                <!-- Selo "Oculto" (exibido via CSS apenas para admin, em cards ocultos) -->
+                <span class="hidden-badge" style="display:none">Oculto</span>
+
+                <img th:src="@{|/${produto.linkImage}Preta.png|}" th:alt="${produto.nome}" alt="Produto">
             </div>
+            <div class="product-info">
+                <h2 class="product-name" th:text="${produto.nome}">Case Commander +100</h2>
 
-            <div class="color-selection">
-                <span>Cor do Filamento:</span>
-                <div class="color-options">
-                    <input type="radio" value="Preto" th:attr="name=|color-p${produto.id}|, id=|color-black-p${produto.id}|, data-image=|${produto.linkImage}Preta.png|" checked>
-                    <label th:attr="for=|color-black-p${produto.id}|" class="color-btn black" title="Preto"></label>
+                <div class="product-prices">
+                    <span class="product-price" th:text="|R$ ${#numbers.formatDecimal(produto.valor, 1, 'POINT', 2, 'COMMA')}|">R$ 89,90</span>
+                </div>
 
-                    <input type="radio" value="Branco" th:attr="name=|color-p${produto.id}|, id=|color-white-p${produto.id}|, data-image=|${produto.linkImage}Branca.png|">
-                    <label th:attr="for=|color-white-p${produto.id}|" class="color-btn white" title="Branco"></label>
+                <div class="color-selection">
+                    <span>Cor do Filamento:</span>
+                    <div class="color-options">
+                        <input type="radio" value="Preto"
+                               th:name="|color-p${produto.id}|"
+                               th:id="|color-black-p${produto.id}|"
+                               th:data-image="@{|/${produto.linkImage}Preta.png|}" checked>
+                        <label th:for="|color-black-p${produto.id}|" class="color-btn black" title="Preto"></label>
 
-                    <input type="radio" value="Vermelho" th:attr="name=|color-p${produto.id}|, id=|color-red-p${produto.id}|, data-image=|${produto.linkImage}Vermelha.png|">
-                    <label th:attr="for=|color-red-p${produto.id}|" class="color-btn red" title="Vermelho"></label>
+                        <input type="radio" value="Branco"
+                               th:name="|color-p${produto.id}|"
+                               th:id="|color-white-p${produto.id}|"
+                               th:data-image="@{|/${produto.linkImage}Branca.png|}">
+                        <label th:for="|color-white-p${produto.id}|" class="color-btn white" title="Branco"></label>
 
-                    <input type="radio" value="Azul" th:attr="name=|color-p${produto.id}|, id=|color-blue-p${produto.id}|, data-image=|${produto.linkImage}Azul.png|">
-                    <label th:attr="for=|color-blue-p${produto.id}|" class="color-btn blue" title="Azul"></label>
+                        <input type="radio" value="Vermelho"
+                               th:name="|color-p${produto.id}|"
+                               th:id="|color-red-p${produto.id}|"
+                               th:data-image="@{|/${produto.linkImage}Vermelha.png|}">
+                        <label th:for="|color-red-p${produto.id}|" class="color-btn red" title="Vermelho"></label>
 
-                    <input type="radio" value="Dourado" th:attr="name=|color-p${produto.id}|, id=|color-gold-p${produto.id}|, data-image=|${produto.linkImage}Dourada.png|">
-                    <label th:attr="for=|color-gold-p${produto.id}|" class="color-btn gold" title="Dourado"></label>
+                        <input type="radio" value="Azul"
+                               th:name="|color-p${produto.id}|"
+                               th:id="|color-blue-p${produto.id}|"
+                               th:data-image="@{|/${produto.linkImage}Azul.png|}">
+                        <label th:for="|color-blue-p${produto.id}|" class="color-btn blue" title="Azul"></label>
+
+                        <input type="radio" value="Dourado"
+                               th:name="|color-p${produto.id}|"
+                               th:id="|color-gold-p${produto.id}|"
+                               th:data-image="@{|/${produto.linkImage}Dourada.png|}">
+                        <label th:for="|color-gold-p${produto.id}|" class="color-btn gold" title="Dourado"></label>
+                    </div>
+                </div>
+
+                <div class="quantity-selection">
+                    <span>Quantidade:</span>
+                    <div class="quantity-control">
+                        <button type="button" class="qty-btn btn-minus" onclick="changeQty(this, -1)">-</button>
+                        <input type="number" class="qty-input" value="1" min="1" max="99" onchange="validateQty(this)">
+                        <button type="button" class="qty-btn btn-plus" onclick="changeQty(this, 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="product-actions">
+                    <button class="btn-cart" onclick="addToCart(this)">
+                        <i class="fa-solid fa-cart-plus"></i> Adicionar
+                    </button>
+                    <button class="btn-buy" onclick="buyNow(this)">Comprar Agora</button>
                 </div>
             </div>
+        </div>
+        <!-- fim do product-card (th:each) -->
 
-            <div class="quantity-selection">
-                <span>Quantidade:</span>
-                <div class="quantity-control">
-                    <button type="button" class="qty-btn btn-minus" onclick="changeQty(this, -1)">-</button>
-                    <input type="number" class="qty-input" value="1" min="1" max="99" onchange="validateQty(this)">
-                    <button type="button" class="qty-btn btn-plus" onclick="changeQty(this, 1)">+</button>
+        <!-- Mensagem exibida quando nenhum produto bate com a categoria filtrada -->
+        <p id="noProductsMsg" class="empty-cart-msg" style="display: none; text-align: center; padding: 40px 0;">
+            Nenhum produto encontrado nessa categoria.
+        </p>
+
+    </div>
+    <!-- fim do products-grid -->
+    </main>
+
+    <!-- ABA LATERAL DE CATEGORIAS -->
+    <div class="categories-modal-overlay" id="categoriesModal">
+        <div class="categories-drawer">
+            <div class="categories-header">
+                <h2><i class="fa-solid fa-list"></i> Categorias</h2>
+                <button class="close-modal-btn" id="closeCategoriesBtn">&times;</button>
+            </div>
+            <ul class="categories-list">
+                <li>
+                    <a href="#" onclick="filterByCategory('todos'); return false;"><i class="fa-solid fa-border-all"></i> Ver Todos</a>
+                </li>
+                <li>
+                    <a href="#" onclick="filterByCategory('1'); return false;"><i class="fa-solid fa-wand-magic-sparkles"></i> Acessórios Magic</a>
+                </li>
+                <li>
+                    <a href="#" onclick="filterByCategory('2'); return false;"><i class="fa-solid fa-bolt"></i> Acessórios Pokémon</a>
+                </li>
+                <li>
+                    <a href="#" onclick="filterByCategory('3'); return false;"><i class="fa-solid fa-screwdriver-wrench"></i> Utilitários</a>
+                </li>
+                <li>
+                    <a href="#" onclick="filterByCategory('4'); return false;"><i class="fa-solid fa-box-open"></i> Outros</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- MODAL / PAINEL LATERAL DO CARRINHO -->
+    <div class="cart-modal-overlay" id="cartModal">
+        <div class="cart-modal">
+            <div class="cart-header">
+                <h2><i class="fa-solid fa-cart-shopping"></i> Seu Carrinho</h2>
+                <button class="close-modal-btn" id="closeCartBtn">&times;</button>
+            </div>
+
+            <div class="cart-items" id="cartItemsContainer">
+                <!-- Itens inseridos dinamicamente pelo JavaScript -->
+            </div>
+
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <strong id="cartTotalValue">R$ 0,00</strong>
                 </div>
-            </div>
-
-            <div class="product-actions">
-                <button class="btn-cart" onclick="addToCart(this)">
-                    <i class="fa-solid fa-cart-plus"></i> Adicionar
-                </button>
-                <button class="btn-buy" onclick="buyNow(this)">Comprar Agora</button>
+                <button class="btn-checkout" id="openCheckoutBtn">Finalizar Compra</button>
             </div>
         </div>
     </div>
 
-<!-- Mensagem exibida quando nenhum produto bate com a categoria filtrada -->
-<p id="noProductsMsg" class="empty-cart-msg" style="display: none; text-align: center; padding: 40px 0;">
-    Nenhum produto encontrado nessa categoria.
-</p>
-
-</main>
-
-<!-- ABA LATERAL DE CATEGORIAS -->
-<div class="categories-modal-overlay" id="categoriesModal">
-    <div class="categories-drawer">
-        <div class="categories-header">
-            <h2><i class="fa-solid fa-list"></i> Categorias</h2>
-            <button class="close-modal-btn" id="closeCategoriesBtn">&times;</button>
-        </div>
-        <ul class="categories-list">
-            <li>
-                <a href="#" onclick="filterByCategory('todos'); return false;"><i class="fa-solid fa-border-all"></i> Ver Todos</a>
-            </li>
-            <li>
-                <a href="#" onclick="filterByCategory('magic'); return false;"><i class="fa-solid fa-wand-magic-sparkles"></i> Acessórios Magic</a>
-            </li>
-            <li>
-                <a href="#" onclick="filterByCategory('pokemon'); return false;"><i class="fa-solid fa-bolt"></i> Acessórios Pokémon</a>
-            </li>
-            <li>
-                <a href="#" onclick="filterByCategory('utilitarios'); return false;"><i class="fa-solid fa-screwdriver-wrench"></i> Utilitários</a>
-            </li>
-            <li>
-                <a href="#" onclick="filterByCategory('outros'); return false;"><i class="fa-solid fa-box-open"></i> Outros</a>
-            </li>
-        </ul>
-    </div>
-</div>
-
-<!-- MODAL / PAINEL LATERAL DO CARRINHO -->
-<div class="cart-modal-overlay" id="cartModal">
-    <div class="cart-modal">
-        <div class="cart-header">
-            <h2><i class="fa-solid fa-cart-shopping"></i> Seu Carrinho</h2>
-            <button class="close-modal-btn" id="closeCartBtn">&times;</button>
-        </div>
-        
-        <div class="cart-items" id="cartItemsContainer">
-            <!-- Itens inseridos dinamicamente pelo JavaScript -->
-        </div>
-
-        <div class="cart-footer">
-            <div class="cart-total">
-                <span>Total:</span>
-                <strong id="cartTotalValue">R$ 0,00</strong>
-            </div>
-            <button class="btn-checkout" id="openCheckoutBtn">Finalizar Compra</button>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL DE PERFIL (LOGIN / CADASTRO) -->
-<div class="profile-modal-overlay" id="profileModal">
-    <div class="profile-modal">
-        <div class="profile-header">
-            <div class="profile-tabs">
-                <button class="tab-btn active" onclick="switchAuthTab('login')">Entrar</button>
-                <button class="tab-btn" onclick="switchAuthTab('register')">Cadastrar</button>
-            </div>
-            <button class="close-modal-btn" id="closeProfileBtn">&times;</button>
-        </div>
-
-        <!-- Formulário de Login  th:action="/login" -->
-        <form class="auth-form active" id="loginForm" onsubmit="handleAuth(event, 'login')" th:object="${usuario}">
-            <div class="input-group">
-                <label for="loginEmail">E-mail</label>
-                <input type="email" id="loginEmail" required placeholder="seu@email.com" th:field="*{email}">
-            </div>
-            <div class="input-group">
-                <label for="loginPassword">Senha</label>
-                <input type="password" id="loginPassword" required placeholder="******" th:field="*{senha}">
-            </div>
-            <button type="submit" class="btn-auth">Entrar</button>
-            <p class="admin-hint">Demo admin: <strong>admin@dogprinting.com</strong> / <strong>admin123</strong></p>
-        </form>
-
-        <!-- Formulário de Cadastro -->
-        <form class="auth-form" id="registerForm" onsubmit="handleAuth(event, 'register')">
-            <div class="input-group">
-                <label for="regName">Nome Completo</label>
-                <input type="text" id="regName" required placeholder="Seu Nome">
-            </div>
-            <div class="input-group">
-                <label for="regEmail">E-mail</label>
-                <input type="email" id="regEmail" required placeholder="seu@email.com">
-            </div>
-            <div class="input-group">
-                <label for="regPassword">Senha</label>
-                <input type="password" id="regPassword" required placeholder="Crie uma senha">
-            </div>
-            <button type="submit" class="btn-auth">Criar Conta</button>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL DE CHECKOUT / PAGAMENTO -->
-<div class="checkout-modal-overlay" id="checkoutModal">
-    <div class="checkout-modal">
-        <div class="checkout-header">
-            <h2><i class="fa-solid fa-shield-halved"></i> Pagamento Seguro</h2>
-            <button class="close-modal-btn" id="closeCheckoutBtn">&times;</button>
-        </div>
-
-        <div class="checkout-body">
-            <!-- Resumo do Valor -->
-            <div class="checkout-summary">
-                <span>Total a pagar:</span>
-                <strong id="checkoutTotalValue">R$ 0,00</strong>
+    <!-- MODAL DE PERFIL (LOGIN / CADASTRO) -->
+    <div class="profile-modal-overlay" id="profileModal">
+        <div class="profile-modal">
+            <div class="profile-header">
+                <div class="profile-tabs">
+                    <button class="tab-btn active" onclick="switchAuthTab('login')">Entrar</button>
+                    <button class="tab-btn" onclick="switchAuthTab('register')">Cadastrar</button>
+                </div>
+                <button class="close-modal-btn" id="closeProfileBtn">&times;</button>
             </div>
 
-            <!-- Seleção do Método de Pagamento -->
-            <div class="payment-methods">
-                <button type="button" class="method-btn active" onclick="switchPaymentMethod('pix')">
-                    <i class="fa-solid fa-pix"></i> PIX
-                </button>
-                <button type="button" class="method-btn" onclick="switchPaymentMethod('card')">
-                    <i class="fa-solid fa-credit-card"></i> Cartão de Crédito
-                </button>
-            </div>
-
-            <!-- FORMULÁRIO PIX -->
-            <form id="pixPaymentForm" class="payment-form active" onsubmit="processPayment(event, 'pix')">
+            <!-- Formulário de Login -->
+            <form class="auth-form active" id="loginForm" method="post" th:action="@{/login}" onsubmit="handleAuth(event, 'login')">
                 <div class="input-group">
-                    <label for="pixName">Nome Completo</label>
-                    <input type="text" id="pixName" required placeholder="Digite seu nome">
+                    <label for="loginEmail">E-mail</label>
+                    <input type="email" id="loginEmail" name="username" required placeholder="seu@email.com">
                 </div>
                 <div class="input-group">
-                    <label for="pixCpf">CPF (necessário para a chave PIX)</label>
-                    <input type="text" id="pixCpf" required placeholder="000.000.000-00">
+                    <label for="loginPassword">Senha</label>
+                    <input type="password" id="loginPassword" name="senha" required placeholder="******">
                 </div>
-                <button type="submit" class="btn-pay"><i class="fa-solid fa-qrcode"></i> Gerar QR Code PIX</button>
+                <button type="submit" class="btn-auth">Entrar</button>
+                <p class="admin-hint">Demo admin: <strong>admin@dogprinting.com</strong> / <strong>admin123</strong></p>
             </form>
 
-            <!-- PAINEL DE RESPOSTA DO PIX (Exibido após gerar) -->
-            <div id="pixResultArea" class="pix-result-area" style="display: none;">
-                <p>Escaneie o QR Code ou copie o código abaixo:</p>
-                <div class="qr-placeholder">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=ExemploDogPrintingPix" alt="QR Code PIX">
-                </div>
-                <div class="pix-copy-box">
-                    <input type="text" id="pixCopyKey" readonly value="00020126580014br.gov.bcb.pix0136dogprinting-chave-exemplo">
-                    <button type="button" onclick="copyPixCode()"><i class="fa-solid fa-copy"></i> Copiar</button>
-                </div>
-                <p class="pix-instructions"><i class="fa-solid fa-clock"></i> O código expira em 30 minutos.</p>
-            </div>
-
-            <!-- FORMULÁRIO CARTÃO DE CRÉDITO -->
-            <form id="cardPaymentForm" class="payment-form" onsubmit="processPayment(event, 'card')">
+            <!-- Formulário de Cadastro -->
+            <form class="auth-form" id="registerForm" onsubmit="handleAuth(event, 'register')">
                 <div class="input-group">
-                    <label for="cardNumber">Número do Cartão</label>
-                    <input type="text" id="cardNumber" required placeholder="0000 0000 0000 0000" maxlength="19">
+                    <label for="regName">Nome Completo</label>
+                    <input type="text" id="regName" required placeholder="Seu Nome">
                 </div>
                 <div class="input-group">
-                    <label for="cardHolder">Nome impresso no Cartão</label>
-                    <input type="text" id="cardHolder" required placeholder="Como no cartão">
-                </div>
-                <div class="form-row">
-                    <div class="input-group">
-                        <label for="cardExpiry">Validade</label>
-                        <input type="text" id="cardExpiry" required placeholder="MM/AA" maxlength="5">
-                    </div>
-                    <div class="input-group">
-                        <label for="cardCvc">CVC / CVV</label>
-                        <input type="text" id="cardCvc" required placeholder="123" maxlength="4">
-                    </div>
+                    <label for="regEmail">E-mail</label>
+                    <input type="email" id="regEmail" required placeholder="seu@email.com">
                 </div>
                 <div class="input-group">
-                    <label for="cardInstallments">Parcelas</label>
-                    <select id="cardInstallments">
-                        <option value="1">1x (À vista)</option>
-                        <option value="2">2x sem juros</option>
-                        <option value="3">3x sem juros</option>
-                    </select>
+                    <label for="regPassword">Senha</label>
+                    <input type="password" id="regPassword" required placeholder="Crie uma senha">
                 </div>
-                <button type="submit" class="btn-pay"><i class="fa-solid fa-lock"></i> Pagar Agora</button>
+                <button type="submit" class="btn-auth">Criar Conta</button>
             </form>
         </div>
     </div>
-</div>
 
-<!-- BOTÃO FLUTUANTE — SÓ APARECE NO MODO ADMIN -->
-<button class="admin-fab" id="addProductFab" title="Adicionar Produto" onclick="openAddProductModal()">
-    <i class="fa-solid fa-plus"></i>
-</button>
-
-<!-- MODAL DE ADMIN — ADICIONAR PRODUTO -->
-<div class="admin-modal-overlay" id="addProductModal">
-    <div class="admin-modal">
-        <div class="admin-modal-header">
-            <h2><i class="fa-solid fa-box-open"></i> Novo Produto</h2>
-            <button class="close-modal-btn" id="closeAddProductBtn">&times;</button>
-        </div>
-
-        <form id="addProductForm" class="admin-form" onsubmit="handleAddProduct(event)">
-            <div class="input-group">
-                <label for="apName">Nome do Produto</label>
-                <input type="text" id="apName" required placeholder="Ex: Suporte de Caneca 3D">
+    <!-- MODAL DE CHECKOUT / PAGAMENTO -->
+    <div class="checkout-modal-overlay" id="checkoutModal">
+        <div class="checkout-modal">
+            <div class="checkout-header">
+                <h2><i class="fa-solid fa-shield-halved"></i> Pagamento Seguro</h2>
+                <button class="close-modal-btn" id="closeCheckoutBtn">&times;</button>
             </div>
 
-            <div class="input-group">
-                <label for="apCategory">Categoria</label>
-                <select id="apCategory" required>
-                    <option value="magic">Acessórios Magic</option>
-                    <option value="pokemon">Acessórios Pokémon</option>
-                    <option value="utilitarios">Utilitários</option>
-                    <option value="outros">Outros</option>
-                </select>
-            </div>
-
-            <div class="form-row">
-                <div class="input-group">
-                    <label for="apOldPrice">Preço Antigo (opcional)</label>
-                    <input type="number" id="apOldPrice" min="0" step="0.01" placeholder="0,00">
+            <div class="checkout-body">
+                <!-- Resumo do Valor -->
+                <div class="checkout-summary">
+                    <span>Total a pagar:</span>
+                    <strong id="checkoutTotalValue">R$ 0,00</strong>
                 </div>
-                <div class="input-group">
-                    <label for="apPrice">Preço Atual</label>
-                    <input type="number" id="apPrice" min="0" step="0.01" required placeholder="0,00">
+
+                <!-- Seleção do Método de Pagamento -->
+                <div class="payment-methods">
+                    <button type="button" class="method-btn active" onclick="switchPaymentMethod('pix')">
+                        <i class="fa-brands fa-pix"></i> PIX
+                    </button>
+                    <button type="button" class="method-btn" onclick="switchPaymentMethod('card')">
+                        <i class="fa-solid fa-credit-card"></i> Cartão de Crédito
+                    </button>
                 </div>
-            </div>
 
-            <div class="input-group">
-                <label for="apMainImage">Imagem Principal</label>
-                <input type="file" id="apMainImage" accept="image/*" required>
-            </div>
+                <!-- FORMULÁRIO PIX -->
+                <form id="pixPaymentForm" class="payment-form active" onsubmit="processPayment(event, 'pix')">
+                    <div class="input-group">
+                        <label for="pixName">Nome Completo</label>
+                        <input type="text" id="pixName" required placeholder="Digite seu nome">
+                    </div>
+                    <div class="input-group">
+                        <label for="pixCpf">CPF (necessário para a chave PIX)</label>
+                        <input type="text" id="pixCpf" required placeholder="000.000.000-00">
+                    </div>
+                    <button type="submit" class="btn-pay"><i class="fa-solid fa-qrcode"></i> Gerar QR Code PIX</button>
+                </form>
 
-            <div class="input-group">
-                <label>Cores Disponíveis</label>
-                <div class="admin-color-list">
-                    <div class="admin-color-row">
-                        <label class="admin-color-check">
-                            <input type="checkbox" class="admin-color-toggle" data-color="Preto" checked>
-                            <span class="color-btn black"></span> Preto
-                        </label>
-                        <input type="file" accept="image/*" class="admin-color-file" data-color="Preto">
+                <!-- PAINEL DE RESPOSTA DO PIX -->
+                <div id="pixResultArea" class="pix-result-area" style="display: none;">
+                    <p>Escaneie o QR Code ou copie o código abaixo:</p>
+                    <div class="qr-placeholder">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&amp;data=ExemploDogPrintingPix" alt="QR Code PIX">
                     </div>
-                    <div class="admin-color-row">
-                        <label class="admin-color-check">
-                            <input type="checkbox" class="admin-color-toggle" data-color="Branco">
-                            <span class="color-btn white"></span> Branco
-                        </label>
-                        <input type="file" accept="image/*" class="admin-color-file" data-color="Branco" style="display:none;">
+                    <div class="pix-copy-box">
+                        <input type="text" id="pixCopyKey" readonly value="00020126580014br.gov.bcb.pix0136dogprinting-chave-exemplo">
+                        <button type="button" onclick="copyPixCode()"><i class="fa-solid fa-copy"></i> Copiar</button>
                     </div>
-                    <div class="admin-color-row">
-                        <label class="admin-color-check">
-                            <input type="checkbox" class="admin-color-toggle" data-color="Vermelho">
-                            <span class="color-btn red"></span> Vermelho
-                        </label>
-                        <input type="file" accept="image/*" class="admin-color-file" data-color="Vermelho" style="display:none;">
-                    </div>
-                    <div class="admin-color-row">
-                        <label class="admin-color-check">
-                            <input type="checkbox" class="admin-color-toggle" data-color="Azul">
-                            <span class="color-btn blue"></span> Azul
-                        </label>
-                        <input type="file" accept="image/*" class="admin-color-file" data-color="Azul" style="display:none;">
-                    </div>
-                    <div class="admin-color-row">
-                        <label class="admin-color-check">
-                            <input type="checkbox" class="admin-color-toggle" data-color="Dourado">
-                            <span class="color-btn gold"></span> Dourado
-                        </label>
-                        <input type="file" accept="image/*" class="admin-color-file" data-color="Dourado" style="display:none;">
-                    </div>
+                    <p class="pix-instructions"><i class="fa-solid fa-clock"></i> O código expira em 30 minutos.</p>
                 </div>
-                <p class="admin-hint">Marque as cores oferecidas. Se não enviar uma foto específica para uma cor, a imagem principal será usada nela.</p>
-            </div>
 
-            <button type="submit" class="btn-auth"><i class="fa-solid fa-plus"></i> Adicionar Produto</button>
-        </form>
-    </div>
-</div>
-
-<script>
-    // --- ESTADO DO CARRINHO ---
-    let cart = [];
-
-    // --- ESTADO DO ADMIN ---
-    let isAdmin = false;
-    const ADMIN_EMAIL = 'admin@dogprinting.com';
-    const ADMIN_PASSWORD = 'admin123';
-    let productCounter = 0;
-
-    // 1. Troca dinâmica de imagem baseada na cor selecionada
-    // Usa delegação de evento no grid inteiro, assim produtos adicionados
-    // pelo admin depois também funcionam sem precisar religar listeners.
-    const productsGridEl = document.getElementById('productsGrid');
-    productsGridEl.addEventListener('change', function(e) {
-        const radio = e.target;
-        if (!radio.matches('.color-options input[type="radio"]')) return;
-
-        const card = radio.closest('.product-card');
-        const img = card.querySelector('.product-image img');
-        const newSrc = radio.getAttribute('data-image');
-
-        if (img && newSrc) {
-            img.style.opacity = '0.3';
-            setTimeout(() => {
-                img.src = newSrc;
-                img.style.opacity = '1';
-            }, 150);
-        }
-    });
-
-    // 2. Lógica do botão + e - no card do produto
-    function changeQty(button, delta) {
-        const input = button.parentElement.querySelector('.qty-input');
-        let currentVal = parseInt(input.value) || 1;
-        currentVal += delta;
-        if (currentVal < 1) currentVal = 1;
-        if (currentVal > 99) currentVal = 99;
-        input.value = currentVal;
-    }
-
-    // 3. Validação ao digitar na caixa de quantidade
-    function validateQty(input) {
-        let val = parseInt(input.value);
-        if (isNaN(val) || val < 1) {
-            input.value = 1;
-        } else if (val > 99) {
-            input.value = 99;
-        }
-    }
-
-    // 4. Adicionar item ao carrinho
-    function addToCart(button) {
-        const card = button.closest('.product-card');
-        const id = card.getAttribute('data-id');
-        const name = card.querySelector('.product-name').innerText;
-        
-        const priceText = card.querySelector('.product-price').innerText;
-        const price = parseFloat(priceText.replace('R$', '').replace('.', '').replace(',', '.').trim());
-        
-        const selectedColorRadio = card.querySelector('.color-options input[type="radio"]:checked');
-        const color = selectedColorRadio ? selectedColorRadio.value : 'Padrão';
-        const image = selectedColorRadio ? selectedColorRadio.getAttribute('data-image') : card.querySelector('.product-image img').src;
-        const quantity = parseInt(card.querySelector('.qty-input').value) || 1;
-
-        const existingItem = cart.find(item => item.id === id && item.color === color);
-
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            cart.push({ id, name, price, color, image, quantity });
-        }
-
-        updateCartUI();
-
-        const badge = document.getElementById('cartCount');
-        badge.classList.add('pulse');
-        setTimeout(() => badge.classList.remove('pulse'), 300);
-    }
-
-    // 5. Comprar Agora
-    function buyNow(button) {
-        addToCart(button);
-        openCartModal();
-    }
-
-    // 6. Alterar quantidade diretamente no modal do carrinho
-    function updateCartItemQty(index, delta) {
-        if (cart[index]) {
-            cart[index].quantity += delta;
-            if (cart[index].quantity <= 0) {
-                removeFromCart(index);
-            } else {
-                updateCartUI();
-            }
-        }
-    }
-
-    // 7. Atualizar Interface do Carrinho
-    function updateCartUI() {
-        const cartItemsContainer = document.getElementById('cartItemsContainer');
-        const cartCount = document.getElementById('cartCount');
-        const cartTotalValue = document.getElementById('cartTotalValue');
-
-        const totalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
-        cartCount.innerText = totalQty;
-
-        cartItemsContainer.innerHTML = '';
-
-        if (cart.length === 0) {
-            cartItemsContainer.innerHTML = '<p class="empty-cart-msg">Seu carrinho está vazio.</p>';
-            cartTotalValue.innerText = 'R$ 0,00';
-            return;
-        }
-
-        let totalPrice = 0;
-
-        cart.forEach((item, index) => {
-            const itemTotal = item.price * item.quantity;
-            totalPrice += itemTotal;
-
-            const itemHTML = `
-                <div class="cart-item">
-                    <img src="${item.image}" alt="${item.name}">
-                    <div class="cart-item-info">
-                        <h4>${item.name}</h4>
-                        <p class="cart-item-detail">Cor: <strong>${item.color}</strong></p>
-                        <p class="cart-item-detail">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
-                        
-                        <div class="cart-item-quantity">
-                            <button class="cart-qty-btn" onclick="updateCartItemQty(${index}, -1)">-</button>
-                            <span class="cart-qty-value">${item.quantity}</span>
-                            <button class="cart-qty-btn" onclick="updateCartItemQty(${index}, 1)">+</button>
+                <!-- FORMULÁRIO CARTÃO DE CRÉDITO -->
+                <form id="cardPaymentForm" class="payment-form" onsubmit="processPayment(event, 'card')">
+                    <div class="input-group">
+                        <label for="cardNumber">Número do Cartão</label>
+                        <input type="text" id="cardNumber" required placeholder="0000 0000 0000 0000" maxlength="19">
+                    </div>
+                    <div class="input-group">
+                        <label for="cardHolder">Nome impresso no Cartão</label>
+                        <input type="text" id="cardHolder" required placeholder="Como no cartão">
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="cardExpiry">Validade</label>
+                            <input type="text" id="cardExpiry" required placeholder="MM/AA" maxlength="5">
+                        </div>
+                        <div class="input-group">
+                            <label for="cardCvc">CVC / CVV</label>
+                            <input type="text" id="cardCvc" required placeholder="123" maxlength="4">
                         </div>
                     </div>
-                    <div class="cart-item-actions">
-                        <span class="cart-item-price">R$ ${itemTotal.toFixed(2).replace('.', ',')}</span>
-                        <button class="remove-item-btn" onclick="removeFromCart(${index})" title="Remover item">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <div class="input-group">
+                        <label for="cardInstallments">Parcelas</label>
+                        <select id="cardInstallments">
+                            <option value="1">1x (À vista)</option>
+                            <option value="2">2x sem juros</option>
+                            <option value="3">3x sem juros</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-pay"><i class="fa-solid fa-lock"></i> Pagar Agora</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÃO FLUTUANTE — SÓ APARECE NO MODO ADMIN -->
+    <button class="admin-fab" id="addProductFab" style="display:none" title="Adicionar Produto" onclick="openAddProductModal()">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+
+    <!-- MODAL DE ADMIN — ADICIONAR PRODUTO -->
+    <div class="admin-modal-overlay" id="addProductModal">
+        <div class="admin-modal">
+            <div class="admin-modal-header">
+                <h2><i class="fa-solid fa-box-open"></i> Novo Produto</h2>
+                <button class="close-modal-btn" id="closeAddProductBtn">&times;</button>
+            </div>
+
+            <form id="addProductForm" class="admin-form" onsubmit="handleAddProduct(event)">
+                <div class="input-group">
+                    <label for="apName">Nome do Produto</label>
+                    <input type="text" id="apName" required placeholder="Ex: Suporte de Caneca 3D">
+                </div>
+
+                <div class="input-group">
+                    <label for="apCategory">Categoria</label>
+                    <select id="apCategory" required>
+                        <option value="1">Acessórios Magic</option>
+                        <option value="2">Acessórios Pokémon</option>
+                        <option value="3">Utilitários</option>
+                        <option value="4">Outros</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="apPrice">Preço Atual</label>
+                        <input type="number" id="apPrice" min="0" step="0.01" required placeholder="0,00">
                     </div>
                 </div>
-            `;
-            cartItemsContainer.innerHTML += itemHTML;
+
+                <div class="input-group">
+                    <label for="apLinkImage">Nome-base da imagem (ex: caseCommander)</label>
+                    <input type="text" id="apLinkImage" required placeholder="caseCommander">
+                    <p class="admin-hint">Informe o prefixo do arquivo na pasta static (ex: se for caseCommanderPreta.png, digite caseCommander).</p>
+                </div>
+
+                <button type="submit" class="btn-auth"><i class="fa-solid fa-plus"></i> Adicionar Produto</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- ESTADO DO CARRINHO ---
+        let cart = [];
+
+        // --- ESTADO DO ADMIN E PRÉVIA ---
+        let isAdmin = false;
+        let isUserPreview = false;
+        const ADMIN_EMAIL = 'admin@dogprinting.com';
+        const ADMIN_PASSWORD = 'admin123';
+		
+
+		for(let prodCard of document.querySelectorAll('.product-card')) {
+			if (prodCard.getAttribute('data-ativo') == 'false'){
+				prodCard.classList.add('is-hidden');
+			}
+		}
+
+        // 1. Troca dinâmica de imagem baseada na cor selecionada
+        const productsGridEl = document.getElementById('productsGrid');
+        productsGridEl.addEventListener('change', function(e) {
+            const radio = e.target;
+            if (!radio.matches('.color-options input[type="radio"]')) return;
+
+            const card = radio.closest('.product-card');
+            const img = card.querySelector('.product-image img');
+            const newSrc = radio.getAttribute('data-image');
+
+            if (img && newSrc) {
+                img.style.opacity = '0.3';
+                setTimeout(() => {
+                    img.src = newSrc;
+                    img.style.opacity = '1';
+                }, 150);
+            }
         });
 
-        cartTotalValue.innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
-    }
+        // 2. Lógica do botão + e - no card do produto
+        function changeQty(button, delta) {
+            const input = button.parentElement.querySelector('.qty-input');
+            let currentVal = parseInt(input.value) || 1;
+            currentVal += delta;
+            if (currentVal < 1) currentVal = 1;
+            if (currentVal > 99) currentVal = 99;
+            input.value = currentVal;
+        }
 
-    // 8. Remover item do carrinho
-    function removeFromCart(index) {
-        cart.splice(index, 1);
-        updateCartUI();
-    }
-
-    // 9. Modal do Carrinho
-    const cartModal = document.getElementById('cartModal');
-    const openCartBtn = document.getElementById('openCartBtn');
-    const closeCartBtn = document.getElementById('closeCartBtn');
-
-    function openCartModal() { cartModal.classList.add('active'); }
-    function closeCartModal() { cartModal.classList.remove('active'); }
-
-    openCartBtn.addEventListener('click', openCartModal);
-    closeCartBtn.addEventListener('click', closeCartModal);
-    cartModal.addEventListener('click', e => { if (e.target === cartModal) closeCartModal(); });
-
-    // Exibe o estado inicial do carrinho (mensagem de "carrinho vazio")
-    updateCartUI();
-
-    // 10. Modal de Perfil (Login/Cadastro)
-    const profileModal = document.getElementById('profileModal');
-    const openProfileBtn = document.getElementById('openProfileBtn');
-    const closeProfileBtn = document.getElementById('closeProfileBtn');
-
-    openProfileBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-
-        // Se já está logado como admin, o botão vira "Sair"
-        if (isAdmin) {
-            if (confirm('Deseja sair do modo administrador?')) {
-                disableAdminMode();
+        // 3. Validação ao digitar na quantidade
+        function validateQty(input) {
+            let val = parseInt(input.value);
+            if (isNaN(val) || val < 1) {
+                input.value = 1;
+            } else if (val > 99) {
+                input.value = 99;
             }
-            return;
         }
 
-        profileModal.classList.add('active');
-    });
+        // 4. Adicionar item ao carrinho
+        function addToCart(button) {
+            const card = button.closest('.product-card');
+            const id = card.getAttribute('data-id');
+            const name = card.querySelector('.product-name').innerText;
 
-    closeProfileBtn.addEventListener('click', () => {
-        profileModal.classList.remove('active');
-    });
+            const priceText = card.querySelector('.product-price').innerText;
+            const price = parseFloat(priceText.replace('R$', '').replace('.', '').replace(',', '.').trim());
 
-    profileModal.addEventListener('click', (e) => {
-        if (e.target === profileModal) profileModal.classList.remove('active');
-    });
+            const selectedColorRadio = card.querySelector('.color-options input[type="radio"]:checked');
+            const color = selectedColorRadio ? selectedColorRadio.value : 'Padrão';
+            const image = selectedColorRadio ? selectedColorRadio.getAttribute('data-image') : card.querySelector('.product-image img').src;
+            const quantity = parseInt(card.querySelector('.qty-input').value) || 1;
 
-    function switchAuthTab(type) {
-        const tabs = document.querySelectorAll('.tab-btn');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
+            const existingItem = cart.find(item => item.id === id && item.color === color);
 
-        tabs.forEach(tab => tab.classList.remove('active'));
-
-        if (type === 'login') {
-            tabs[0].classList.add('active');
-            loginForm.classList.add('active');
-            registerForm.classList.remove('active');
-        } else {
-            tabs[1].classList.add('active');
-            registerForm.classList.add('active');
-            loginForm.classList.remove('active');
-        }
-    }
-
-    function handleAuth(event, type) {
-        event.preventDefault();
-
-        if (type === 'login') {
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const password = document.getElementById('loginPassword').value;
-
-            if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                enableAdminMode();
-                alert('Login de administrador efetuado! Agora você pode adicionar e excluir produtos.');
+            if (existingItem) {
+                existingItem.quantity += quantity;
             } else {
-                alert('Login efetuado com sucesso!');
+                cart.push({ id, name, price, color, image, quantity });
             }
-        } else {
-            alert('Cadastro realizado com sucesso!');
-        }
-        profileModal.classList.remove('active');
-    }
 
-    // --- Ativa/desativa o modo administrador ---
-    function enableAdminMode() {
-        isAdmin = true;
-        document.body.classList.add('admin-mode');
-        document.getElementById('adminBadge').style.display = 'inline-flex';
-        document.getElementById('profileBtnLabel').innerText = 'Sair';
-    }
-
-    function disableAdminMode() {
-        isAdmin = false;
-        document.body.classList.remove('admin-mode');
-        document.getElementById('adminBadge').style.display = 'none';
-        document.getElementById('profileBtnLabel').innerText = 'Perfil';
-    }
-
-    // --- Excluir produto (somente admin) ---
-    function deleteProduct(button) {
-        const card = button.closest('.product-card');
-        const name = card.querySelector('.product-name').innerText;
-
-        if (confirm(`Excluir "${name}" do catálogo?`)) {
-            card.remove();
-        }
-    }
-
-    // --- Modal de Adicionar Produto (somente admin) ---
-    const addProductModal = document.getElementById('addProductModal');
-    const addProductFab = document.getElementById('addProductFab');
-    const closeAddProductBtn = document.getElementById('closeAddProductBtn');
-    const addProductForm = document.getElementById('addProductForm');
-
-    function openAddProductModal() {
-        addProductModal.classList.add('active');
-    }
-
-    function closeAddProductModal() {
-        addProductModal.classList.remove('active');
-        addProductForm.reset();
-        // Esconde de novo os campos de upload por cor, exceto o Preto
-        document.querySelectorAll('.admin-color-file').forEach(input => {
-            input.style.display = input.dataset.color === 'Preto' ? '' : 'none';
-        });
-        document.querySelectorAll('.admin-color-toggle').forEach(cb => {
-            cb.checked = cb.dataset.color === 'Preto';
-        });
-    }
-
-    closeAddProductBtn.addEventListener('click', closeAddProductModal);
-    addProductModal.addEventListener('click', (e) => {
-        if (e.target === addProductModal) closeAddProductModal();
-    });
-
-    // Mostra/esconde o campo de upload de imagem específica quando a cor é marcada/desmarcada
-    document.querySelectorAll('.admin-color-toggle').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const fileInput = document.querySelector(`.admin-color-file[data-color="${this.dataset.color}"]`);
-            fileInput.style.display = this.checked ? 'block' : 'none';
-        });
-    });
-
-    // Lê um arquivo de imagem e devolve uma Promise com a Data URL (base64)
-    function readImageFile(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-
-    const COLOR_SWATCH_CLASS = {
-        'Preto': 'black',
-        'Branco': 'white',
-        'Vermelho': 'red',
-        'Azul': 'blue',
-        'Dourado': 'gold'
-    };
-
-    async function handleAddProduct(event) {
-        event.preventDefault();
-
-        const name = document.getElementById('apName').value.trim();
-        const category = document.getElementById('apCategory').value;
-        const oldPriceVal = document.getElementById('apOldPrice').value;
-        const priceVal = document.getElementById('apPrice').value;
-        const mainImageFile = document.getElementById('apMainImage').files[0];
-
-        if (!mainImageFile) {
-            alert('Selecione uma imagem principal para o produto.');
-            return;
-        }
-
-        const checkedColors = Array.from(document.querySelectorAll('.admin-color-toggle:checked'));
-        if (checkedColors.length === 0) {
-            alert('Selecione ao menos uma cor disponível.');
-            return;
-        }
-
-        const mainImageDataUrl = await readImageFile(mainImageFile);
-
-        // Resolve a imagem de cada cor: usa a foto específica se enviada, senão a imagem principal
-        const colorImages = [];
-        for (const checkbox of checkedColors) {
-            const color = checkbox.dataset.color;
-            const fileInput = document.querySelector(`.admin-color-file[data-color="${color}"]`);
-            const file = fileInput.files[0];
-            const dataUrl = file ? await readImageFile(file) : mainImageDataUrl;
-            colorImages.push({ color, dataUrl });
-        }
-
-        productCounter++;
-        const productId = `custom-${Date.now()}-${productCounter}`;
-        const radioGroupName = `color-${productId}`;
-
-        const priceNum = parseFloat(priceVal) || 0;
-        const oldPriceNum = parseFloat(oldPriceVal) || 0;
-        const priceFormatted = `R$ ${priceNum.toFixed(2).replace('.', ',')}`;
-        const oldPriceFormatted = oldPriceNum > 0 ? `R$ ${oldPriceNum.toFixed(2).replace('.', ',')}` : '';
-
-        const colorOptionsHTML = colorImages.map((item, index) => {
-            const inputId = `color-${item.color.toLowerCase()}-${productId}`;
-            const swatchClass = COLOR_SWATCH_CLASS[item.color] || 'black';
-            const checkedAttr = index === 0 ? 'checked' : '';
-            return `
-                    <input type="radio" name="${radioGroupName}" id="${inputId}" value="${item.color}" data-image="${item.dataUrl}" ${checkedAttr}>
-                    <label for="${inputId}" class="color-btn ${swatchClass}" title="${item.color}"></label>`;
-        }).join('\n');
-
-        const cardHTML = `
-    <div class="product-card" data-id="${productId}" data-category="${category}">
-        <div class="product-image">
-            <button class="btn-delete-product" onclick="deleteProduct(this)" title="Excluir produto">
-                <i class="fa-solid fa-trash-can"></i>
-            </button>
-            <img src="${colorImages[0].dataUrl}" alt="${name}">
-        </div>
-        <div class="product-info">
-            <h2 class="product-name">${name}</h2>
-
-            <div class="product-prices">
-                ${oldPriceFormatted ? `<span class="old-price">${oldPriceFormatted}</span>` : ''}
-                <span class="product-price">${priceFormatted}</span>
-            </div>
-
-            <div class="color-selection">
-                <span>Cor do Filamento:</span>
-                <div class="color-options">${colorOptionsHTML}
-                </div>
-            </div>
-
-            <div class="quantity-selection">
-                <span>Quantidade:</span>
-                <div class="quantity-control">
-                    <button type="button" class="qty-btn btn-minus" onclick="changeQty(this, -1)">-</button>
-                    <input type="number" class="qty-input" value="1" min="1" max="99" onchange="validateQty(this)">
-                    <button type="button" class="qty-btn btn-plus" onclick="changeQty(this, 1)">+</button>
-                </div>
-            </div>
-
-            <div class="product-actions">
-                <button class="btn-cart" onclick="addToCart(this)">
-                    <i class="fa-solid fa-cart-plus"></i> Adicionar
-                </button>
-                <button class="btn-buy" onclick="buyNow(this)">Comprar Agora</button>
-            </div>
-        </div>
-    </div>`;
-
-        productsGridEl.insertAdjacentHTML('beforeend', cardHTML);
-
-        closeAddProductModal();
-        alert(`Produto "${name}" adicionado ao catálogo!`);
-    }
-
-    // 11. Modal de Categorias (Drawer Lateral Esquerdo)
-    const categoriesModal = document.getElementById('categoriesModal');
-    const openCategoriesBtn = document.getElementById('openCategoriesBtn');
-    const closeCategoriesBtn = document.getElementById('closeCategoriesBtn');
-
-    function openCategoriesModal() {
-        categoriesModal.classList.add('active');
-    }
-
-    function closeCategoriesModal() {
-        categoriesModal.classList.remove('active');
-    }
-
-    openCategoriesBtn.addEventListener('click', openCategoriesModal);
-    closeCategoriesBtn.addEventListener('click', closeCategoriesModal);
-
-    categoriesModal.addEventListener('click', (e) => {
-        if (e.target === categoriesModal) closeCategoriesModal();
-    });
-
-    // 11.1 Filtro de produtos por categoria
-    // Mesmo padrão de "pegar o card e mexer só nele", mas aplicado a todos os cards em lote:
-    // para cada .product-card, comparamos o data-category dele com a categoria escolhida.
-    function filterByCategory(category) {
-        const cards = document.querySelectorAll('.product-card');
-        let visibleCount = 0;
-
-        cards.forEach(card => {
-            const cardCategory = card.getAttribute('data-category');
-            const shouldShow = (category === 'todos' || cardCategory === category);
-
-            card.style.display = shouldShow ? '' : 'none';
-            if (shouldShow) visibleCount++;
-        });
-
-        // Mostra mensagem caso nenhum produto bata com o filtro
-        document.getElementById('noProductsMsg').style.display = visibleCount === 0 ? 'block' : 'none';
-
-        closeCategoriesModal();
-    }
-
-    // 12. Modal de Checkout (Pagamento)
-    const checkoutModal = document.getElementById('checkoutModal');
-    const openCheckoutBtn = document.getElementById('openCheckoutBtn');
-    const closeCheckoutBtn = document.getElementById('closeCheckoutBtn');
-
-    function openCheckout() {
-        if (cart.length === 0) {
-            alert('Seu carrinho está vazio!');
-            return;
-        }
-
-        const cartTotalValue = document.getElementById('cartTotalValue').innerText;
-        document.getElementById('checkoutTotalValue').innerText = cartTotalValue;
-
-        closeCartModal();
-        checkoutModal.classList.add('active');
-    }
-
-    function closeCheckout() {
-        checkoutModal.classList.remove('active');
-        document.getElementById('pixResultArea').style.display = 'none';
-        document.getElementById('pixPaymentForm').style.display = 'block';
-    }
-
-    openCheckoutBtn.addEventListener('click', openCheckout);
-    closeCheckoutBtn.addEventListener('click', closeCheckout);
-    checkoutModal.addEventListener('click', (e) => {
-        if (e.target === checkoutModal) closeCheckout();
-    });
-
-    // Alternar entre abas de PIX e Cartão
-    function switchPaymentMethod(method) {
-        const buttons = document.querySelectorAll('.payment-methods .method-btn');
-        const pixForm = document.getElementById('pixPaymentForm');
-        const cardForm = document.getElementById('cardPaymentForm');
-        const pixResultArea = document.getElementById('pixResultArea');
-
-        buttons.forEach(btn => btn.classList.remove('active'));
-
-        if (method === 'pix') {
-            buttons[0].classList.add('active');
-            pixForm.classList.add('active');
-            cardForm.classList.remove('active');
-        } else {
-            buttons[1].classList.add('active');
-            cardForm.classList.add('active');
-            pixForm.classList.remove('active');
-            pixResultArea.style.display = 'none';
-        }
-    }
-
-    // Processamento do pagamento
-    function processPayment(event, method) {
-        event.preventDefault();
-        if (method === 'pix') {
-            document.getElementById('pixPaymentForm').style.display = 'none';
-            document.getElementById('pixResultArea').style.display = 'block';
-        } else {
-            alert('Pagamento processado com sucesso! Obrigado pela compra.');
-            cart = [];
             updateCartUI();
-            closeCheckout();
-        }
-    }
 
-    // Copiar código PIX
-    function copyPixCode() {
-        const copyText = document.getElementById('pixCopyKey');
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(copyText.value);
-        alert('Código PIX copiado!');
-    }
-</script>
+            const badge = document.getElementById('cartCount');
+            badge.classList.add('pulse');
+            setTimeout(() => badge.classList.remove('pulse'), 300);
+        }
+
+        // 5. Comprar Agora
+        function buyNow(button) {
+            addToCart(button);
+            openCartModal();
+        }
+
+        // 6. Alterar quantidade diretamente no carrinho
+        function updateCartItemQty(index, delta) {
+            if (cart[index]) {
+                cart[index].quantity += delta;
+                if (cart[index].quantity <= 0) {
+                    removeFromCart(index);
+                } else {
+                    updateCartUI();
+                }
+            }
+        }
+
+        // 7. Atualizar Interface do Carrinho
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cartItemsContainer');
+            const cartCount = document.getElementById('cartCount');
+            const cartTotalValue = document.getElementById('cartTotalValue');
+
+            const totalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
+            cartCount.innerText = totalQty;
+
+            cartItemsContainer.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="empty-cart-msg">Seu carrinho está vazio.</p>';
+                cartTotalValue.innerText = 'R$ 0,00';
+                return;
+            }
+
+            let totalPrice = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                totalPrice += itemTotal;
+
+                const itemHTML = `
+                    <div class="cart-item">
+                        <img src="${item.image}" alt="${item.name}">
+                        <div class="cart-item-info">
+                            <h4>${item.name}</h4>
+                            <p class="cart-item-detail">Cor: <strong>${item.color}</strong></p>
+                            <p class="cart-item-detail">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+
+                            <div class="cart-item-quantity">
+                                <button class="cart-qty-btn" onclick="updateCartItemQty(${index}, -1)">-</button>
+                                <span class="cart-qty-value">${item.quantity}</span>
+                                <button class="cart-qty-btn" onclick="updateCartItemQty(${index}, 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <span class="cart-item-price">R$ ${itemTotal.toFixed(2).replace('.', ',')}</span>
+                            <button class="remove-item-btn" onclick="removeFromCart(${index})" title="Remover item">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                cartItemsContainer.innerHTML += itemHTML;
+            });
+
+            cartTotalValue.innerText = `R$ ${totalPrice.toFixed(2).replace('.', ',')}`;
+        }
+
+        // 8. Remover item do carrinho
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        // 9. Modal do Carrinho
+        const cartModal = document.getElementById('cartModal');
+        const openCartBtn = document.getElementById('openCartBtn');
+        const closeCartBtn = document.getElementById('closeCartBtn');
+
+        function openCartModal() { cartModal.classList.add('active'); }
+        function closeCartModal() { cartModal.classList.remove('active'); }
+
+        openCartBtn.addEventListener('click', openCartModal);
+        closeCartBtn.addEventListener('click', closeCartModal);
+        cartModal.addEventListener('click', e => { if (e.target === cartModal) closeCartModal(); });
+
+        updateCartUI();
+
+        // 10. Modal de Perfil (Login/Cadastro)
+        const profileModal = document.getElementById('profileModal');
+        const openProfileBtn = document.getElementById('openProfileBtn');
+        const closeProfileBtn = document.getElementById('closeProfileBtn');
+
+        openProfileBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if (isAdmin) {
+                if (confirm('Deseja sair do modo administrador?')) {
+                    disableAdminMode();
+                }
+                return;
+            }
+
+            profileModal.classList.add('active');
+        });
+
+        closeProfileBtn.addEventListener('click', () => {
+            profileModal.classList.remove('active');
+        });
+
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) profileModal.classList.remove('active');
+        });
+
+        function switchAuthTab(type) {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            if (type === 'login') {
+                tabs[0].classList.add('active');
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+            } else {
+                tabs[1].classList.add('active');
+                registerForm.classList.add('active');
+                loginForm.classList.remove('active');
+            }
+        }
+
+        function handleAuth(event, type) {
+            if (type === 'login') {
+                const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+                const password = document.getElementById('loginPassword').value;
+
+                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    event.preventDefault();
+                    enableAdminMode();
+                    alert('Login de administrador efetuado! Agora você pode gerenciar os produtos.');
+                    profileModal.classList.remove('active');
+                }
+                return;
+            }
+
+            // Cadastro via fetch POST /cadastro
+            event.preventDefault();
+            fetch('/cadastro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nome: document.getElementById('regName').value.trim(),
+                    email: document.getElementById('regEmail').value.trim().toLowerCase(),
+                    senha: document.getElementById('regPassword').value
+                })
+            })
+            .then(async res => {
+                alert(await res.text());
+                if (res.ok) {
+                    document.getElementById('registerForm').reset();
+                    switchAuthTab('login');
+                }
+            })
+            .catch(() => alert('Erro ao conectar com o servidor.'));
+        }
+
+        // --- LÓGICA DO MODO ADMIN E PRÉVIA DE USUÁRIO ---
+        function enableAdminMode() {
+            isAdmin = true;
+            document.body.classList.add('admin-mode');
+            document.getElementById('profileBtnLabel').innerText = 'Sair';
+        }
+
+        function disableAdminMode() {
+            isAdmin = false;
+            isUserPreview = false;
+            document.body.classList.remove('admin-mode', 'user-preview');
+            document.getElementById('previewToggleBtn').classList.remove('active');
+            document.getElementById('previewBtnLabel').innerText = 'Prévia do Usuário';
+            document.getElementById('profileBtnLabel').innerText = 'Perfil';
+        }
+
+        // Ocultar / Exibir produto (só acessível no modo admin)
+        function toggleHideProduct(button) {
+            if (!isAdmin) return;
+
+            const card = button.closest('.product-card');
+            const icon = button.querySelector('i');
+
+            const isNowHidden = card.classList.toggle('is-hidden');
+			let id = card.getAttribute('data-id').charAt(1);
+			console.log('id do produto é ' + id);
+
+            if (isNowHidden) {
+                icon.className = 'fa-solid fa-eye';
+                button.title = 'Exibir produto';
+				fetch('/api-rest/produto/desativar/' + id);
+            } else {
+                icon.className = 'fa-solid fa-eye-slash';
+                button.title = 'Ocultar produto';
+				fetch('/api-rest/produto/ativar/' + id);
+            }
+        }
+
+        // Alternar Prévia do Usuário (só acessível no modo admin)
+        function toggleUserPreview() {
+            if (!isAdmin) return;
+
+            isUserPreview = !isUserPreview;
+            const btnLabel = document.getElementById('previewBtnLabel');
+            const previewBtn = document.getElementById('previewToggleBtn');
+
+            document.body.classList.toggle('user-preview', isUserPreview);
+            previewBtn.classList.toggle('active', isUserPreview);
+            btnLabel.innerText = isUserPreview ? 'Modo Edição' : 'Prévia do Usuário';
+        }
+
+        // --- Modal de Adicionar Produto ---
+        const addProductModal = document.getElementById('addProductModal');
+        const closeAddProductBtn = document.getElementById('closeAddProductBtn');
+        const addProductForm = document.getElementById('addProductForm');
+
+        function openAddProductModal() {
+            if (!isAdmin) return;
+            addProductModal.classList.add('active');
+        }
+
+        function closeAddProductModal() {
+            addProductModal.classList.remove('active');
+            addProductForm.reset();
+        }
+
+        closeAddProductBtn.addEventListener('click', closeAddProductModal);
+        addProductModal.addEventListener('click', (e) => {
+            if (e.target === addProductModal) closeAddProductModal();
+        });
+
+        // Cadastro de produto via fetch POST /produtos
+        async function handleAddProduct(event) {
+            event.preventDefault();
+            if (!isAdmin) return;
+
+            const body = {
+                nome: document.getElementById('apName').value.trim(),
+                categoria: document.getElementById('apCategory').value,
+                valor: parseFloat(document.getElementById('apPrice').value) || 0,
+                linkImage: document.getElementById('apLinkImage').value.trim()
+            };
+
+            try {
+                const res = await fetch('/produtos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error();
+                closeAddProductModal();
+                location.reload();
+            } catch (e) {
+                alert('Erro ao adicionar o produto.');
+            }
+        }
+
+        // 11. Modal de Categorias (Drawer Lateral)
+        const categoriesModal = document.getElementById('categoriesModal');
+        const openCategoriesBtn = document.getElementById('openCategoriesBtn');
+        const closeCategoriesBtn = document.getElementById('closeCategoriesBtn');
+
+        function openCategoriesModal() { categoriesModal.classList.add('active'); }
+        function closeCategoriesModal() { categoriesModal.classList.remove('active'); }
+
+        openCategoriesBtn.addEventListener('click', openCategoriesModal);
+        closeCategoriesBtn.addEventListener('click', closeCategoriesModal);
+        categoriesModal.addEventListener('click', (e) => {
+            if (e.target === categoriesModal) closeCategoriesModal();
+        });
+
+        function filterByCategory(category) {
+            const cards = document.querySelectorAll('.product-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const shouldShow = (category === 'todos' || cardCategory === category);
+
+                card.style.display = shouldShow ? '' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+
+            document.getElementById('noProductsMsg').style.display = visibleCount === 0 ? 'block' : 'none';
+            closeCategoriesModal();
+        }
+
+        // 12. Modal de Checkout (Pagamento)
+        const checkoutModal = document.getElementById('checkoutModal');
+        const openCheckoutBtn = document.getElementById('openCheckoutBtn');
+        const closeCheckoutBtn = document.getElementById('closeCheckoutBtn');
+
+        function openCheckout() {
+            if (cart.length === 0) {
+                alert('Seu carrinho está vazio!');
+                return;
+            }
+
+            const cartTotalValue = document.getElementById('cartTotalValue').innerText;
+            document.getElementById('checkoutTotalValue').innerText = cartTotalValue;
+
+            closeCartModal();
+            checkoutModal.classList.add('active');
+        }
+
+        function closeCheckout() {
+            checkoutModal.classList.remove('active');
+            document.getElementById('pixResultArea').style.display = 'none';
+            document.getElementById('pixPaymentForm').style.display = '';
+        }
+
+        openCheckoutBtn.addEventListener('click', openCheckout);
+        closeCheckoutBtn.addEventListener('click', closeCheckout);
+        checkoutModal.addEventListener('click', (e) => {
+            if (e.target === checkoutModal) closeCheckout();
+        });
+
+        function switchPaymentMethod(method) {
+            const buttons = document.querySelectorAll('.payment-methods .method-btn');
+            const pixForm = document.getElementById('pixPaymentForm');
+            const cardForm = document.getElementById('cardPaymentForm');
+            const pixResultArea = document.getElementById('pixResultArea');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (method === 'pix') {
+                buttons[0].classList.add('active');
+                pixForm.classList.add('active');
+                cardForm.classList.remove('active');
+            } else {
+                buttons[1].classList.add('active');
+                cardForm.classList.add('active');
+                pixForm.classList.remove('active');
+                pixResultArea.style.display = 'none';
+            }
+        }
+
+        function processPayment(event, method) {
+            event.preventDefault();
+            if (method === 'pix') {
+                document.getElementById('pixPaymentForm').style.display = 'none';
+                document.getElementById('pixResultArea').style.display = 'block';
+            } else {
+                alert('Pagamento processado com sucesso! Obrigado pela compra.');
+                cart = [];
+                updateCartUI();
+                closeCheckout();
+            }
+        }
+
+        function copyPixCode() {
+            const copyText = document.getElementById('pixCopyKey');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert('Código PIX copiado com sucesso!');
+        }
+    </script>
 
 </body>
 </html>

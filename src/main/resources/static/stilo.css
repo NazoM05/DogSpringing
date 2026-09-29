@@ -9,11 +9,12 @@
     --text-old-price: #8c7b6c;   /* Tom cinza/marrom apagado para preço antigo */
     --text-muted: #777777;       /* Texto secundário/suave */
     --btn-cart-bg: #d1c7a5;      /* Botão secundário (Carrinho) */
-    --btn-cart-hover: #beba96;   
+    --btn-cart-hover: #beba96;
     --btn-buy-bg: #3a2a1c;       /* Botão primário (Comprar) */
-    --btn-buy-hover: #271c12;    
+    --btn-buy-hover: #271c12;
     --btn-success: #28a745;      /* Botão de confirmação de pagamento */
     --btn-success-hover: #218838;
+    --danger-color: #d32f2f;     /* Ações destrutivas / itens ocultos (admin) */
     --border-color: #c4bca3;     /* Bordas sutis */
     --overlay-bg: rgba(0, 0, 0, 0.6);
     --radius-sm: 6px;
@@ -103,7 +104,35 @@ body {
 }
 
 .user-menu a:hover {
-    color: #8c5a2b; /* Destaque elegante em tom marrom quente */
+    color: #8c5a2b;
+}
+
+/* Botão do Modo Prévia de Usuário (oculto por padrão; ver seção 14) */
+.btn-preview-toggle {
+    display: none;
+    background-color: var(--btn-buy-bg);
+    color: var(--bg-card);
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-preview-toggle:hover {
+    background-color: var(--btn-buy-hover);
+}
+
+.btn-preview-toggle.active {
+    background-color: var(--text-price);
+}
+
+.btn-preview-toggle:active {
+    transform: scale(0.97);
 }
 
 /* Botão do Carrinho na Navbar */
@@ -153,6 +182,20 @@ body {
     100% { transform: scale(1); }
 }
 
+/* Selo "Modo Admin" no cabeçalho (oculto por padrão; ver seção 14) */
+.admin-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background-color: var(--text-price);
+    color: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
 /* ==========================================================================
    3. CONTAINER PRINCIPAL E GRID DE PRODUTOS
    ========================================================================== */
@@ -179,6 +222,7 @@ main {
    4. CARD DO PRODUTO
    ========================================================================== */
 .product-card {
+    position: relative;
     background-color: var(--bg-card);
     border-radius: var(--radius-card);
     overflow: hidden;
@@ -194,6 +238,7 @@ main {
 }
 
 .product-image {
+    position: relative;
     width: 100%;
     height: 250px;
     background-color: #f0ebe0;
@@ -244,6 +289,27 @@ main {
     font-weight: 800;
 }
 
+/* Produto Oculto (estilos base) */
+.product-card.is-hidden {
+    opacity: 0.6;
+    outline: 2px dashed var(--danger-color);
+    outline-offset: -2px;
+}
+
+.product-card .hidden-badge {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+    background-color: var(--danger-color);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
 /* ==========================================================================
    5. SELEÇÃO DE CORES
    ========================================================================== */
@@ -253,7 +319,7 @@ main {
     gap: 8px;
 }
 
-.color-selection span, 
+.color-selection span,
 .quantity-selection span {
     font-size: 0.85rem;
     font-weight: 600;
@@ -396,7 +462,8 @@ main {
 .categories-modal-overlay,
 .cart-modal-overlay,
 .profile-modal-overlay,
-.checkout-modal-overlay {
+.checkout-modal-overlay,
+.admin-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -413,10 +480,10 @@ main {
 .categories-modal-overlay.active,
 .cart-modal-overlay.active,
 .profile-modal-overlay.active,
-.checkout-modal-overlay.active {
+.checkout-modal-overlay.active,
+.admin-modal-overlay.active {
     opacity: 1;
     pointer-events: auto;
-    display: flex;
 }
 
 .close-modal-btn {
@@ -798,6 +865,13 @@ main {
     background-color: var(--btn-buy-hover);
 }
 
+.admin-hint {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 6px;
+}
+
 /* ==========================================================================
    12. MODAL DE CHECKOUT E PAGAMENTO (PIX / CARTÃO)
    ========================================================================== */
@@ -906,7 +980,6 @@ main {
     background-color: var(--btn-success-hover);
 }
 
-/* Área de Resultado do PIX */
 .pix-result-area {
     text-align: center;
 }
@@ -961,50 +1034,20 @@ main {
 }
 
 /* ==========================================================================
-   13. ADAPTAÇÕES RESPONSIVAS (DISPOSITIVOS MÓVEIS)
-   ========================================================================== */
-/* ==========================================================================
-   14. MODO ADMINISTRADOR
+   13. ELEMENTOS DE ADMIN E MODAL (CONFIGURAÇÃO BASE)
    ========================================================================== */
 
-/* Selo "Modo Admin" no cabeçalho */
-.admin-badge {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    background-color: var(--text-price);
-    color: #ffffff;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 20px;
-    letter-spacing: 0.3px;
-}
-
-/* Dica de credenciais de demonstração no login */
-.admin-hint {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    text-align: center;
-    margin-top: 6px;
-}
-
-/* Botão de excluir sobre a imagem do produto — só aparece no modo admin */
-.product-image {
-    position: relative;
-}
-
-.btn-delete-product {
+/* Botões de exclusão e ocultação no card (escondidos por padrão) */
+.btn-delete-product,
+.btn-hide-product {
     display: none;
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 5;
     width: 34px;
     height: 34px;
     border-radius: 50%;
     border: none;
-    background-color: rgba(211, 47, 47, 0.9);
     color: #ffffff;
     font-size: 0.9rem;
     cursor: pointer;
@@ -1014,19 +1057,30 @@ main {
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
+.btn-delete-product {
+    right: 10px;
+    background-color: rgba(211, 47, 47, 0.9);
+}
+
 .btn-delete-product:hover {
     background-color: #b71c1c;
 }
 
-.btn-delete-product:active {
+.btn-hide-product {
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.btn-hide-product:hover {
+    background-color: var(--danger-color);
+}
+
+.btn-delete-product:active,
+.btn-hide-product:active {
     transform: scale(0.93);
 }
 
-body.admin-mode .btn-delete-product {
-    display: flex;
-}
-
-/* Botão flutuante de adicionar produto — só aparece no modo admin */
+/* Botão Flutuante (FAB) de Adicionar Produto */
 .admin-fab {
     display: none;
     position: fixed;
@@ -1052,31 +1106,11 @@ body.admin-mode .btn-delete-product {
     transform: scale(1.05);
 }
 
-body.admin-mode .admin-fab {
-    display: flex;
-}
-
-/* Modal de "Adicionar Produto" */
+/* Modal de "Adicionar Produto" (Admin) */
 .admin-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--overlay-bg);
-    display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 1000;
-}
-
-.admin-modal-overlay.active {
-    opacity: 1;
-    pointer-events: auto;
 }
 
 .admin-modal {
@@ -1157,6 +1191,59 @@ body.admin-mode .admin-fab {
     font-size: 0.8rem;
 }
 
+/* ==========================================================================
+   14. CONTROLE DE VISIBILIDADE - MODO ADMIN / PRÉVIA DO USUÁRIO
+   ========================================================================== */
+
+/* PADRÃO (usuário normal ou deslogado): tudo que é de admin fica OCULTO */
+.btn-preview-toggle,
+.btn-hide-product,
+.btn-delete-product,
+.hidden-badge,
+.admin-fab,
+#adminBadge {
+    display: none !important;
+}
+
+/* Perfil Admin ativo: exibe os controles de gerenciamento */
+body.admin-mode .btn-preview-toggle {
+    display: inline-flex !important;
+}
+
+body.admin-mode .btn-hide-product,
+body.admin-mode .btn-delete-product {
+    display: flex !important;
+}
+
+/* O selo "Oculto" só aparece em cards realmente ocultados */
+body.admin-mode .product-card.is-hidden .hidden-badge {
+    display: inline-block !important;
+}
+
+body.admin-mode .admin-fab {
+    display: flex !important;
+}
+
+body.admin-mode #adminBadge {
+    display: inline-flex !important;
+}
+
+/* MODO PRÉVIA DO USUÁRIO: mantém só o botão de alternar prévia visível */
+body.admin-mode.user-preview .btn-hide-product,
+body.admin-mode.user-preview .btn-delete-product,
+body.admin-mode.user-preview .hidden-badge,
+body.admin-mode.user-preview .admin-fab {
+    display: none !important;
+}
+
+/* Na prévia, produtos ocultos somem, como o cliente veria */
+body.admin-mode.user-preview .product-card.is-hidden {
+    display: none !important;
+}
+
+/* ==========================================================================
+   15. ADAPTAÇÕES RESPONSIVAS (DISPOSITIVOS MÓVEIS)
+   ========================================================================== */
 @media (max-width: 600px) {
     .link-head {
         padding: 12px 15px;
@@ -1166,8 +1253,10 @@ body.admin-mode .admin-fab {
         gap: 10px;
     }
 
-    .user-menu a span {
-        display: none; /* Esconde textos descritivos do menu para caber ícones no mobile */
+    .user-menu a span,
+    .btn-preview-toggle span,
+    .cart-icon-btn span:not(.cart-count) {
+        display: none; /* Oculta apenas os textos no mobile mantendo os ícones */
     }
 
     .cart-modal {
@@ -1179,15 +1268,13 @@ body.admin-mode .admin-fab {
     }
 
     .profile-modal,
-    .checkout-modal {
+    .checkout-modal,
+    .admin-modal {
         padding: 18px;
         max-width: 95%;
     }
 
-    .product-actions {
-        flex-direction: column;
-    }
-
+    .product-actions,
     .form-row {
         flex-direction: column;
     }

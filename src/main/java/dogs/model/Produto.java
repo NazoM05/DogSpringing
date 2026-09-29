@@ -14,18 +14,20 @@ public class Produto {
 	String nome;
 	Double valor;
 	Integer estoque;
-	Integer categoria; 
+	Integer categoria;
+	boolean ativo;
 
-	public Produto(Long id, String linkImage, String nome, Double valor, Integer estoque, Integer categoria) {
-		super();
+	
+
+	public Produto(Long id, String linkImage, String nome, Double valor, Integer estoque, Integer categoria,
+			boolean ativo) {
 		this.id = id;
 		this.linkImage = linkImage;
 		this.nome = nome;
 		this.valor = valor;
 		this.estoque = estoque;
 		this.categoria = categoria;
-
-
+		this.ativo = ativo;
 	}
 
 	public Long getId() {
@@ -68,6 +70,13 @@ public class Produto {
 		this.estoque = estoque;
 	}
 	
+	public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
+	}
 
 	public Integer getCategoria() {
 		return categoria;

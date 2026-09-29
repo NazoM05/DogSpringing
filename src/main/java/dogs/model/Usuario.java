@@ -7,11 +7,21 @@ import jakarta.persistence.Id;
 
 @Entity
 public class Usuario {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	Long id;
 	String email;
 	String senha;
 	String nome;
+	String nivel;
+	String ativo;
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getEmail() {
 		return email;
 	}
@@ -30,15 +40,31 @@ public class Usuario {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	public Usuario(String email, String senha, String nome) {
-		super();
+	public String getNivel() {
+		return nivel;
+	}
+	public void setNivel(String nivel) {
+		this.nivel = nivel;
+	}
+	public String getAtivo() {
+		return ativo;
+	}
+	public void setAtivo(String ativo) {
+		this.ativo = ativo;
+	}
+	public Usuario(Long id, String email, String senha, String nome, String nivel, String ativo) {
+		this.id = id;
 		this.email = email;
 		this.senha = senha;
 		this.nome = nome;
+		this.nivel = nivel;
+		this.ativo = ativo;
 	}
 	public Usuario() {
 	}
-
+	
+	
+	
 
 }
 
